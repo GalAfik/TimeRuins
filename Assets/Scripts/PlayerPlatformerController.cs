@@ -1,50 +1,56 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class PlayerPlatformerController : PhysicsObject
+namespace TimeRuins
 {
-
-	public float maxSpeed = 7;
-	public float jumpTakeOffSpeed = 7;
-
-	private SpriteRenderer spriteRenderer;
-	private Animator animator;
-
-	// Use this for initialization
-	void Awake()
+	public class PlayerPlatformerController : PhysicsObject
 	{
-		spriteRenderer = GetComponent<SpriteRenderer>();
-		animator = GetComponent<Animator>();
-	}
+		public float MaxSpeed = 7; // The max speed the player can accelerate to
+		public float JumpForce = 7;
 
-	protected override void ComputeVelocity()
-	{
-		Vector2 move = Vector2.zero;
+		private SpriteRenderer SpriteRenderer;
+		private Animator Animator;
 
-		move.x = Input.GetAxis("Horizontal");
-
-		if (Input.GetButtonDown("Jump") && grounded)
+		// Use this for initialization
+		void Awake()
 		{
-			velocity.y = jumpTakeOffSpeed;
+			// Grab references to components
+			SpriteRenderer = GetComponent<SpriteRenderer>();
+			Animator = GetComponent<Animator>();
 		}
-		else if (Input.GetButtonUp("Jump"))
+
+		protected override void ComputeVelocity()
 		{
-			if (velocity.y > 0)
+			Vector2 move = Vector2.zero;
+
+			// Handle horizontal input from the player
+			move.x = Input.GetAxis("Horizontal");
+
+			// Handle jumping
+			if (Input.GetButtonDown("Jump") && Grounded)
 			{
-				velocity.y = velocity.y * 0.5f;
+				Velocity.y = JumpForce;
 			}
+			else if (Input.GetButtonUp("Jump"))
+			{
+				if (Velocity.y > 0)
+				{
+					Velocity.y = Velocity.y * 0.5f;
+				}
+			}
+
+			// Handle flipping the sprite when the player moves left
+			bool flipSprite = (SpriteRenderer.flipX ? (move.x > 0.01f) : (move.x < 0.01f));
+			if (flipSprite) SpriteRenderer.flipX = !SpriteRenderer.flipX;
+
+			// Set animator properties
+			Animator.SetBool("Grounded", Grounded);
+			Animator.SetFloat("VelocityX", Mathf.Abs(Velocity.x) / MaxSpeed);
+
+			// Apply the new Velocity to the targetVelocity for the physics object
+			base.TargetVelocity = move * MaxSpeed;
 		}
-
-		bool flipSprite = (spriteRenderer.flipX ? (move.x > 0.01f) : (move.x < 0.01f));
-		if (flipSprite)
-		{
-			spriteRenderer.flipX = !spriteRenderer.flipX;
-		}
-
-		animator.SetBool("grounded", grounded);
-		animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
-
-		targetVelocity = move * maxSpeed;
 	}
 }

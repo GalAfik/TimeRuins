@@ -10,10 +10,16 @@ namespace TimeRuins
 		[Serializable]
 		public class ConfigurationData
 		{
-			public float MoveSpeed; // How fast the player moves
-			public float JumpForce; // How high the player can jump
-			public float Gravity; // How fast the player falls
+			[Header("Reference Objects")]
+			public TimeController TimeController;
 		}
 		public ConfigurationData Conf = new ConfigurationData();
+		public Animator Animator;
+
+		private void Awake()
+		{
+			// Get a reference to the Animator object
+			Animator = GetComponent<Animator>();
+		}
 	}
 }
