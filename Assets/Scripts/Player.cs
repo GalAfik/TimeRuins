@@ -14,12 +14,14 @@ namespace TimeRuins
 			public TimeController TimeController;
 		}
 		public ConfigurationData Conf = new ConfigurationData();
+		public SpriteRenderer SpriteRenderer;
 		public Animator Animator;
 
 		private void Awake()
 		{
-			// Get a reference to the Animator object
+			// Get references to the reference objects
 			Animator = GetComponent<Animator>();
+			SpriteRenderer = GetComponent<SpriteRenderer>();
 		}
 	}
 }
