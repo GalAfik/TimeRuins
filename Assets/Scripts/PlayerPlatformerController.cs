@@ -72,8 +72,7 @@ namespace TimeRuins
 			}
 
 			// Handle flipping the sprite when the player moves left
-			bool flipSprite = (SpriteRenderer.flipX ? (move.x > 0.01f) : (move.x < 0.01f));
-			if (flipSprite) SpriteRenderer.flipX = !SpriteRenderer.flipX;
+			SpriteRenderer.flipX = !SpriteRenderer.flipX ? (move.x < 0f) : (move.x <= 0f);
 
 			// Set animator properties
 			Animator.SetBool("Grounded", Grounded);

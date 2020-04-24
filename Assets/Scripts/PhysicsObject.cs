@@ -21,7 +21,6 @@ namespace TimeRuins
 		protected RaycastHit2D[] HitBuffer = new RaycastHit2D[16];
 		protected List<RaycastHit2D> HitBufferList = new List<RaycastHit2D>(16);
 
-
 		protected const float minMoveDistance = 0.001f;
 		protected const float shellRadius = 0.01f;
 
@@ -55,18 +54,21 @@ namespace TimeRuins
 			Velocity += GravityModifier * Physics2D.gravity * Time.deltaTime;
 			Velocity.x = TargetVelocity.x;
 
+			// Reset whether the object is grounded
 			Grounded = false;
 
+			// The proposed change in position 
 			Vector2 deltaPosition = Velocity * Time.deltaTime;
-
 			Vector2 moveAlongGround = new Vector2(GroundNormal.y, -GroundNormal.x);
-
 			Vector2 move = moveAlongGround * deltaPosition.x;
 
+			// Apply x movement
 			Movement(move, false);
 
+			// Calculate the y movement
 			move = Vector2.up * deltaPosition.y;
 
+			// Apply y movement
 			Movement(move, true);
 		}
 

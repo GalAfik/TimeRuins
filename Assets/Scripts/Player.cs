@@ -10,18 +10,21 @@ namespace TimeRuins
 		[Serializable]
 		public class ConfigurationData
 		{
-			[Header("Reference Objects")]
-			public TimeController TimeController;
 		}
 		public ConfigurationData Conf = new ConfigurationData();
-		public SpriteRenderer SpriteRenderer;
-		public Animator Animator;
+		public SpriteRenderer SpriteRenderer { get; set; }
+		public Animator Animator { get; set; }
+		public ParticleSystem ParticleSystem { get; set; }
 
-		private void Awake()
+private void Awake()
 		{
 			// Get references to the reference objects
 			Animator = GetComponent<Animator>();
 			SpriteRenderer = GetComponent<SpriteRenderer>();
+			ParticleSystem = GetComponentInChildren<ParticleSystem>();
+
+			// Disable the particle system when the game first starts
+			ParticleSystem?.Pause();
 		}
 	}
 }
