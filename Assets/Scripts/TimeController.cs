@@ -15,6 +15,9 @@ namespace TimeRuins
 		public float MaxTimelineSwitchTimeEasyMode; // How long the time switch lasts in easy mode
 		public float ResetTime; // How long it takes the time switch power to recharge
 
+		public float LayerFadeTime; // How long it takes a layer to fade in/out
+		[Range(0, 1)] public float LayerFadeAlpha;
+
 		private float TimelineSwitchTime; // The applied version of the above variables
 		HashSet<GameObject> PastItems;
 		HashSet<GameObject> RuinsItems;
@@ -29,9 +32,8 @@ namespace TimeRuins
 			// (players can turn on easy mode via the options menu)
 			TimelineSwitchTime = GameController?.Difficulty == Difficulty.EASY ? MaxTimelineSwitchTimeEasyMode : MaxTimelineSwitchTime;
 
-			// Set the initial capacity of the tiemr
-			Timer?.SetMaxTimer(TimelineSwitchTime);
-			StartCoroutine(FadeTo(Timer, 0f, 0.01f));
+			// Fade out the timer to start off with
+			StartCoroutine(FadeTo(Timer, 0f, 0f));
 		}
 
 		private void Start()
@@ -44,7 +46,7 @@ namespace TimeRuins
 			RuinsItems = FindGameObjectsInLayer("Ruins");
 
 			// Disable the past layer
-			SetTimelineStatus(PastItems, false);
+			SetColliders(PastItems, false);
 		}
 
 		// Update is called once per frame
@@ -59,6 +61,7 @@ namespace TimeRuins
 				// Count time in the past
 				TimeInPast += Time.unscaledDeltaTime;
 				// Set the timer
+				Timer?.SetMaxTimer(TimelineSwitchTime);
 				Timer?.SetTimer(TimelineSwitchTime - TimeInPast);
 			}
 			else
@@ -74,6 +77,7 @@ namespace TimeRuins
 
 				// Reset both time in the past and the timer UI
 				TimeInPast = 0;
+				Timer?.SetMaxTimer(ResetTime);
 				Timer?.SetTimer(ResetTimer);
 			}
 		}
@@ -83,20 +87,15 @@ namespace TimeRuins
 			// Drain the recharge timer
 			ResetTimer = 0;
 
-			// Set the player animation
-			Player?.Animator?.SetTrigger("Action");
-			if (Player.ParticleSystem != null)
-			{
-				Player.ParticleSystem.Clear();
-				Player.ParticleSystem.Play();
-			}
-
 			// Enable the past objects
-			SetTimelineStatus(PastItems, true);
-			// Disable the ruins objects
-			SetTimelineStatus(RuinsItems, false);
+			SetColliders(PastItems, true);
+			SetColliders(RuinsItems, false);
+			FadeLayer(RuinsItems, 0.2f, LayerFadeTime);
 
+			// Grow the mask
+			Player?.SetTimelineMask(true);
 
+			/*
 			// Check if the player is obstructed
 			Collider2D hit = Physics2D.OverlapCircle( (Vector2)Player?.transform.position, 0.5f );
 
@@ -108,32 +107,40 @@ namespace TimeRuins
 				Time.timeScale = 0f;
 			}
 			else IsPastActive = true;
+			*/
+
+			IsPastActive = true;
 
 			// Fade in the timer UI
 			StartCoroutine(FadeTo(Timer, 1f, 0.2f));
 
-			yield return new WaitForSecondsRealtime(switchTime);
-			Time.timeScale = 1f;
+			//Time.timeScale = 0f;
+			yield return new WaitForSecondsRealtime(TimelineSwitchTime);
+			//Time.timeScale = 1f;
 
 			// Switch back to the ruins
-			SetTimelineStatus(RuinsItems, true);
-			SetTimelineStatus(PastItems, false);
+			SetColliders(RuinsItems, true);
+			SetColliders(PastItems, false);
+			FadeLayer(RuinsItems, 1, LayerFadeTime);
+
+			// Shrink the mask
+			Player?.SetTimelineMask(false);
+
+			// Set the past flag
 			IsPastActive = false;
 		}
 
-		void SetTimelineStatus(HashSet<GameObject> timelineObjects, bool status)
+		void SetColliders(HashSet<GameObject> timelineObjects, bool status)
 		{
 			foreach (GameObject item in timelineObjects)
 			{
-				item.SetActive(status);
-			}
-		}
-
-		void FadeLayer(HashSet<GameObject> timelineObjects, float alpha, float time)
-		{
-			foreach (GameObject item in timelineObjects)
-			{
-				StartCoroutine(FadeTo(item, alpha, time));
+				// Set this item's collider status
+				if (item.GetComponent<Collider2D>() != null) item.GetComponent<Collider2D>().enabled = status;
+				// Set the status for this item's children
+				foreach (Collider2D collider in item.GetComponentsInChildren<Collider2D>())
+				{
+					collider.enabled = status;
+				}
 			}
 		}
 
@@ -161,6 +168,14 @@ namespace TimeRuins
 				newColor.a = Mathf.Lerp(alpha, aValue, t);
 				obj.GetComponent<Renderer>().material.color = newColor;
 				yield return new WaitForEndOfFrame();
+			}
+		}
+
+		void FadeLayer(HashSet<GameObject> timelineObjects, float alpha, float time)
+		{
+			foreach (GameObject item in timelineObjects)
+			{
+				StartCoroutine(FadeTo(item, alpha, time));
 			}
 		}
 

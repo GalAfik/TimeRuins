@@ -10,11 +10,6 @@ namespace TimeRuins
 		public DialogController DialogController;
 		public Difficulty Difficulty { get; set; }
 
-		private void Start()
-		{
-			DialogController.DisplayMessage("This is a test...");
-		}
-
 		public void ToggleEasyMode()
 		{
 			if (Difficulty == Difficulty.NORMAL) Difficulty = Difficulty.EASY;
@@ -29,16 +24,6 @@ namespace TimeRuins
 		public void ToggleSFX()
 		{
 			// TODO : toggle SFX
-		}
-
-		public void ToggleLeftHanded()
-		{
-			// TODO : toggle left handed controls
-		}
-
-		public void ToggleColorBlindMode()
-		{
-			// TODO : toggle color blind mode
 		}
 	}
 

@@ -10,15 +10,26 @@ namespace TimeRuins
 	public class DialogController : MonoBehaviour
 	{
 		public TextMeshProUGUI Dialog;
-		public float TextSpeed; // How fast the text appears on screen
-		public float TextEraseSpeed; // How fast text disappears
-		public float MessageTime; // How long text remains on screen before disappearing
+		[Serializable]
+		public class ConfigurationData
+		{
+			public float TextSpeed; // How fast the text appears on screen
+			public float TextEraseSpeed; // How fast text disappears
+			public float MessageTime; // How long text remains on screen before disappearing
+		}
+		public ConfigurationData Conf = new ConfigurationData();
+		public string Message;
 
 		// Start is called before the first frame update
 		void Awake()
 		{
 			// Reset the Dialog box
 			Dialog?.SetText("");
+		}
+
+		private void Start()
+		{
+			DisplayMessage(Message);
 		}
 
 		public void DisplayMessage(string message)
@@ -34,11 +45,11 @@ namespace TimeRuins
 				// Set the message in the dialog object
 				Dialog?.SetText(message.Substring(0, i));
 				// Pause before typing the next letter
-				yield return new WaitForSecondsRealtime(1 / TextSpeed);
+				yield return new WaitForSecondsRealtime(1 / Conf.TextSpeed);
 			}
 
 			// Give the player time to read
-			yield return new WaitForSecondsRealtime(MessageTime);
+			yield return new WaitForSecondsRealtime(Conf.MessageTime);
 
 			// Erase the text
 			for (int i = message.Length; i >= 0; i--)
@@ -46,7 +57,7 @@ namespace TimeRuins
 				// Set the message in the dialog object
 				Dialog?.SetText(message.Substring(0, i));
 				// Pause before typing the next letter
-				yield return new WaitForSecondsRealtime(1 / TextEraseSpeed);
+				yield return new WaitForSecondsRealtime(1 / Conf.TextEraseSpeed);
 			}
 		}
 	}
