@@ -26,5 +26,11 @@ namespace TimeRuins
 			if (status == true) StartCoroutine(growAction);
 			else StartCoroutine(shrinkAction);
 		}
+
+		public void Die()
+		{
+			// Set the death animation
+			Animator?.SetTrigger("Death");
+		}
 	}
 }

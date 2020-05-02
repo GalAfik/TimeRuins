@@ -14,6 +14,7 @@ namespace TimeRuins
 		public float MaxTimelineSwitchTime; // How long the time switch lasts
 		public float MaxTimelineSwitchTimeEasyMode; // How long the time switch lasts in easy mode
 		public float ResetTime; // How long it takes the time switch power to recharge
+		public float PauseForEffectTime; // How long the game should pause before and after initiating a time switch
 
 		public float LayerFadeTime; // How long it takes a layer to fade in/out
 		[Range(0, 1)] public float LayerFadeAlpha;
@@ -90,7 +91,7 @@ namespace TimeRuins
 			// Enable the past objects
 			SetColliders(PastItems, true);
 			SetColliders(RuinsItems, false);
-			FadeLayer(RuinsItems, 0.2f, LayerFadeTime);
+			//FadeLayer(RuinsItems, 0.2f, LayerFadeTime);
 
 			// Grow the mask
 			Player?.SetTimelineMask(true);
@@ -114,17 +115,32 @@ namespace TimeRuins
 			// Fade in the timer UI
 			StartCoroutine(FadeTo(Timer, 1f, 0.2f));
 
-			//Time.timeScale = 0f;
+			// Pause time momentarily
+			Time.timeScale = 0f;
+			yield return new WaitForSecondsRealtime(PauseForEffectTime);
+			Time.timeScale = 1f;
+
+			// This is how long the time switch lasts
 			yield return new WaitForSecondsRealtime(TimelineSwitchTime);
-			//Time.timeScale = 1f;
+
+			// Pause time momentarily while time switches back
+			Time.timeScale = 0f;
 
 			// Switch back to the ruins
 			SetColliders(RuinsItems, true);
 			SetColliders(PastItems, false);
-			FadeLayer(RuinsItems, 1, LayerFadeTime);
+			//FadeLayer(RuinsItems, 1, LayerFadeTime);
 
 			// Shrink the mask
 			Player?.SetTimelineMask(false);
+
+			// Wait for the mask to finish shrinking before unfreezing time
+			if (Player.TimelineMask != null)
+			{
+				while (Player.TimelineMask.gameObject.activeSelf) yield return new WaitForEndOfFrame();
+			}
+			// Set time back to normal
+			Time.timeScale = 1f;
 
 			// Set the past flag
 			IsPastActive = false;
