@@ -10,14 +10,12 @@ namespace TimeRuins
 	{
 		public GameController GameController;
 		public Player Player;
+		public SpriteMask TimeMask;
 		public Timer Timer; // The timer used for displaying how much time is left in the current time switch
 		public float MaxTimelineSwitchTime; // How long the time switch lasts
 		public float MaxTimelineSwitchTimeEasyMode; // How long the time switch lasts in easy mode
 		public float ResetTime; // How long it takes the time switch power to recharge
 		public float PauseForEffectTime; // How long the game should pause before and after initiating a time switch
-
-		public float LayerFadeTime; // How long it takes a layer to fade in/out
-		[Range(0, 1)] public float LayerFadeAlpha;
 
 		private float TimelineSwitchTime; // The applied version of the above variables
 		HashSet<GameObject> PastItems;
@@ -91,12 +89,11 @@ namespace TimeRuins
 			// Enable the past objects
 			SetColliders(PastItems, true);
 			SetColliders(RuinsItems, false);
-			//FadeLayer(RuinsItems, 0.2f, LayerFadeTime);
 
-			// Grow the mask
-			Player?.SetTimelineMask(true);
+			// Set the layer mask to active
+			TimeMask?.gameObject.SetActive(true);
 
-			/*
+			
 			// Check if the player is obstructed
 			Collider2D hit = Physics2D.OverlapCircle( (Vector2)Player?.transform.position, 0.5f );
 
@@ -108,9 +105,6 @@ namespace TimeRuins
 				Time.timeScale = 0f;
 			}
 			else IsPastActive = true;
-			*/
-
-			IsPastActive = true;
 
 			// Fade in the timer UI
 			StartCoroutine(FadeTo(Timer, 1f, 0.2f));
@@ -121,7 +115,7 @@ namespace TimeRuins
 			Time.timeScale = 1f;
 
 			// This is how long the time switch lasts
-			yield return new WaitForSecondsRealtime(TimelineSwitchTime);
+			yield return new WaitForSecondsRealtime(switchTime);
 
 			// Pause time momentarily while time switches back
 			Time.timeScale = 0f;
@@ -129,17 +123,13 @@ namespace TimeRuins
 			// Switch back to the ruins
 			SetColliders(RuinsItems, true);
 			SetColliders(PastItems, false);
-			//FadeLayer(RuinsItems, 1, LayerFadeTime);
 
-			// Shrink the mask
-			Player?.SetTimelineMask(false);
+			// Hide the layer mask
+			TimeMask?.gameObject.SetActive(false);
 
-			// Wait for the mask to finish shrinking before unfreezing time
-			if (Player.TimelineMask != null)
-			{
-				while (Player.TimelineMask.gameObject.activeSelf) yield return new WaitForEndOfFrame();
-			}
-			// Set time back to normal
+			// Pause time momentarily
+			Time.timeScale = 0f;
+			yield return new WaitForSecondsRealtime(PauseForEffectTime);
 			Time.timeScale = 1f;
 
 			// Set the past flag
@@ -173,26 +163,6 @@ namespace TimeRuins
 			}
 			// Return
 			return objectsInLayer;
-		}
-
-		IEnumerator FadeTo(GameObject obj, float aValue, float aTime)
-		{
-			float alpha = obj.GetComponent<Renderer>().material.color.a;
-			for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / aTime)
-			{
-				Color newColor = obj.GetComponent<Renderer>().material.color;
-				newColor.a = Mathf.Lerp(alpha, aValue, t);
-				obj.GetComponent<Renderer>().material.color = newColor;
-				yield return new WaitForEndOfFrame();
-			}
-		}
-
-		void FadeLayer(HashSet<GameObject> timelineObjects, float alpha, float time)
-		{
-			foreach (GameObject item in timelineObjects)
-			{
-				StartCoroutine(FadeTo(item, alpha, time));
-			}
 		}
 
 		IEnumerator FadeTo(Timer timer, float aValue, float aTime)

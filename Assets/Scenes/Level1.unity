@@ -8447,36 +8447,6 @@ PrefabInstance:
       propertyPath: Timer
       value: 
       objectReference: {fileID: 1239468379}
-    - target: {fileID: 133409217430069278, guid: b23fa9e55158482439d43f1d4ba60bcb,
-        type: 3}
-      propertyPath: LayerFadeTime
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 133409217430069278, guid: b23fa9e55158482439d43f1d4ba60bcb,
-        type: 3}
-      propertyPath: MaxTimelineSwitchTime
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 133409217430069278, guid: b23fa9e55158482439d43f1d4ba60bcb,
-        type: 3}
-      propertyPath: MaxTimelineSwitchTimeEasyMode
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 133409217430069278, guid: b23fa9e55158482439d43f1d4ba60bcb,
-        type: 3}
-      propertyPath: ResetTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 133409217430069278, guid: b23fa9e55158482439d43f1d4ba60bcb,
-        type: 3}
-      propertyPath: LayerFadeAlpha
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 133409217430069278, guid: b23fa9e55158482439d43f1d4ba60bcb,
-        type: 3}
-      propertyPath: PauseForEffectTime
-      value: 0.25
-      objectReference: {fileID: 0}
     - target: {fileID: 133409217430069279, guid: b23fa9e55158482439d43f1d4ba60bcb,
         type: 3}
       propertyPath: m_Name
